@@ -9,6 +9,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.thodoriskotoufos.noteapplication.databinding.FragmentSecondBinding
+import java.util.UUID
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -53,8 +54,10 @@ class SecondFragment : Fragment() {
     private fun writeNoteToDB(title: String, contents: String){
         val note = Note(title,contents)
         val database = Firebase.database.reference
+        val uuid = UUID.randomUUID().toString()
+        database.root.child("notes").child(uuid).setValue(note)
         //database.child("notes").setValue(note)
-        database.setValue(note)
+
     }
 
     private fun goBackToFirst(){
