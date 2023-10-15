@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.ktx.database
@@ -34,17 +35,17 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.cancelButton.setOnClickListener {
-            /// TODO: add dialog to confirm cancellation
             goBackToFirst()
         }
 
         binding.saveButton.setOnClickListener {
-            /// TODO: add save functionality, clear after saving, return to main fragment after saving
-            if (binding.editTextNoteTitle.text.isNotEmpty() || binding.editTextNoteContents.text.isNotEmpty()){
+            if (binding.editTextNoteTitle.text.isNotEmpty() && binding.editTextNoteContents.text.isNotEmpty()){
                 writeNoteToDB(binding.editTextNoteTitle.text.toString(),binding.editTextNoteContents.text.toString())
 
                 binding.editTextNoteTitle.text.clear()
                 binding.editTextNoteContents.text.clear()
+            }else{
+                Toast.makeText(requireActivity().applicationContext,"Please fill BOTH title and contents",Toast.LENGTH_SHORT).show()
             }
 
 
@@ -54,8 +55,7 @@ class SecondFragment : Fragment() {
     private fun writeNoteToDB(title: String, contents: String){
         val note = Note(title,contents)
         val database = Firebase.database.reference
-        val uuid = UUID.randomUUID().toString()
-        database.root.child("notes").child(uuid).setValue(note)
+        database.root.child("notes").child(UUID.randomUUID().toString()).setValue(note)
         //database.child("notes").setValue(note)
 
     }
