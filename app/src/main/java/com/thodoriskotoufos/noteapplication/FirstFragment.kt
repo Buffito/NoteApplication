@@ -1,12 +1,13 @@
 package com.thodoriskotoufos.noteapplication
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.thodoriskotoufos.noteapplication.databinding.FragmentFirstBinding
@@ -40,14 +41,20 @@ class FirstFragment : Fragment() {
         database.child("notes").get().addOnSuccessListener { ds ->
             ds.children.forEach {
                     child -> database.child("notes").child(child.key.toString()).get().addOnSuccessListener {
-                        Log.e("DATA T",it.child("title").value.toString())
-                        Log.e("DATA C",it.child("content").value.toString())
+                        //Log.e("DATA T",it.child("title").value.toString())
+                        //Log.e("DATA C",it.child("content").value.toString())
 
-                        titles.add(it.child("title").value.toString())
+                        //titles.add(it.child("title").value.toString())
                     }
             }
         }
-
+        titles.add("test 1")
+        titles.add("test 2")
+        titles.add("test 3")
+        val recyclerViewAdapter = RecyclerViewAdapter(titles)
+        val recyclerView: RecyclerView = binding.noteList
+        recyclerView.layoutManager = LinearLayoutManager(requireActivity().applicationContext)
+        recyclerView.adapter = recyclerViewAdapter
 
         binding.fab.setOnClickListener { findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }

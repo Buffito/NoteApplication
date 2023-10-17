@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class RecyclerViewAdapter(private val dataSet: ArrayList<Note>) :
+class RecyclerViewAdapter(private val dataSet: ArrayList<String>) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
     /**
@@ -27,7 +27,7 @@ class RecyclerViewAdapter(private val dataSet: ArrayList<Note>) :
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.fragment_first, viewGroup, false)
+            .inflate(R.layout.items_view, viewGroup, false)
 
         return ViewHolder(view)
     }
@@ -37,7 +37,7 @@ class RecyclerViewAdapter(private val dataSet: ArrayList<Note>) :
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = dataSet[position].title
+        viewHolder.textView.text = dataSet[position]
     }
 
     // Return the size of your dataset (invoked by the layout manager)
