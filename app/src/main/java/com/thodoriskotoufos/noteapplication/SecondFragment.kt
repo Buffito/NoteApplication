@@ -1,5 +1,6 @@
 package com.thodoriskotoufos.noteapplication
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.thodoriskotoufos.noteapplication.databinding.FragmentSecondBinding
+import java.time.LocalDate
 import java.util.UUID
 
 /**
@@ -53,7 +55,11 @@ class SecondFragment : Fragment() {
     }
 
     private fun writeNoteToDB(title: String, contents: String){
-        val note = Note(title,contents)
+        val note = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Note(title,contents, LocalDate.now())
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
         val database = Firebase.database.reference
         database.root.child("notes").child(UUID.randomUUID().toString()).setValue(note)
         //database.child("notes").setValue(note)
