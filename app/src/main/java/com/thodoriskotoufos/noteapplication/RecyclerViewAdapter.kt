@@ -2,24 +2,27 @@ package com.thodoriskotoufos.noteapplication
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class RecyclerViewAdapter(private val dataSet: ArrayList<String>) :
+class RecyclerViewAdapter(private val dataSet: ArrayList<Note>) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-    /**
-     * Provide a reference to the type of views that you are using
-     * (custom ViewHolder)
-     */
+    private var onClickListener : OnClickListener? = null
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView
+        val textViewTitle: TextView
+        val textViewDateTime: TextView
+        val textViewContents: TextView
 
         init {
             // Define click listener for the ViewHolder's View
-            textView = view.findViewById(R.id.itemTitle)
+            textViewTitle = view.findViewById(R.id.itemTitle)
+            textViewDateTime = view.findViewById(R.id.itemDatetime)
+            textViewContents = view.findViewById(R.id.itemContents)
         }
     }
 
@@ -37,9 +40,24 @@ class RecyclerViewAdapter(private val dataSet: ArrayList<String>) :
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = dataSet[position]
+        viewHolder.textViewTitle.text = dataSet[position].toString()
+        viewHolder.textViewDateTime.text = dataSet[position].toString()
+        viewHolder.textViewContents.text = dataSet[position].toString()
+
+        viewHolder.itemView.setOnClickListener {
+            if (onClickListener != null){
+                onClickListener!!.onClick(position)
+            }
+        }
     }
 
+    fun setOnClickListener(onClickListener: OnClickListener){
+        this.onClickListener = onClickListener
+    }
+
+    interface OnClickListener {
+        fun onClick(position: Int)
+    }
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = dataSet.size
 

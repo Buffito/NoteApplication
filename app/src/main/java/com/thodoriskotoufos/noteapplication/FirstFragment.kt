@@ -1,10 +1,10 @@
 package com.thodoriskotoufos.noteapplication
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +22,6 @@ import com.thodoriskotoufos.noteapplication.databinding.FragmentFirstBinding
 class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
-    //private var database = Firebase.database.reference
     private lateinit var dbRef: DatabaseReference
 
     // This property is only valid between onCreateView and
@@ -41,22 +40,33 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val titles = ArrayList<String>()
         dbRef = FirebaseDatabase.getInstance().getReference("notes")
+
 
         dbRef.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.exists()){
-                    for (snap in snapshot.children){
-                        val data = snap.value
-                        titles.add(data.toString())
-                        Log.e("e",data.toString())
-                    }
-                    val recyclerViewAdapter = RecyclerViewAdapter(titles)
-                    val recyclerView: RecyclerView = binding.noteList
-                    recyclerView.layoutManager = LinearLayoutManager(requireActivity().applicationContext)
-                    recyclerView.adapter = recyclerViewAdapter
+                val temp = ArrayList<Note>()
+
+                if(!snapshot.exists() || !snapshot.hasChildren()){
+                    Toast.makeText(requireActivity().applicationContext,"List is empty!",
+                        Toast.LENGTH_SHORT).show()
+                    return
                 }
+
+                for (snap in snapshot.children) {
+                    val t = snap.child("title").value.toString()
+                    val d = snap.child("datetime").value.toString()
+                    val c = snap.child("content").value.toString()
+
+                    val note =  Note(t,c, d)
+                    temp.add(note)
+                }
+
+                val recyclerViewAdapter = RecyclerViewAdapter(temp)
+                val recyclerView: RecyclerView = binding.noteList
+                recyclerView.layoutManager = LinearLayoutManager(requireActivity().applicationContext)
+                recyclerView.adapter = recyclerViewAdapter
+
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -69,8 +79,4 @@ class FirstFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
