@@ -6,77 +6,87 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.thodoriskotoufos.noteapplication.databinding.FragmentFirstBinding
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
-class FirstFragment : Fragment() {
+class FirstFragment : Fragment(), RecyclerViewAdapter.ClickListener {
 
-    private var _binding: FragmentFirstBinding? = null
-    private lateinit var dbRef: DatabaseReference
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+    private lateinit var recyclerViewAdapter: RecyclerViewAdapter
+    private val noteList: ArrayList<Note> = ArrayList()
+    private val dbRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("notes")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
-        return binding.root
-
+        val view = inflater.inflate(R.layout.fragment_first, container, false)
+        getNotesFromFirebase(view)
+        return view
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dbRef = FirebaseDatabase.getInstance().getReference("notes")
+        view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+            goToSecond("")
+        }
+    }
 
 
+    private fun getNotesFromFirebase(view: View){
         dbRef.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val temp = ArrayList<Note>()
-
                 if(!snapshot.exists() || !snapshot.hasChildren()){
                     Toast.makeText(requireActivity().applicationContext,"List is empty!",
                         Toast.LENGTH_SHORT).show()
                     return
                 }
-
                 for (snap in snapshot.children) {
-                    val t = snap.child("title").value.toString()
-                    val d = snap.child("datetime").value.toString()
-                    val c = snap.child("content").value.toString()
+                    val note =  Note(snap.key.toString(),snap.child("title").value.toString(),
+                        snap.child("content").value.toString(), snap.child("datetime").value.toString())
+                    noteList.add(note)
 
-                    val note =  Note(t,c, d)
-                    temp.add(note)
                 }
-
-                val recyclerViewAdapter = RecyclerViewAdapter(temp)
-                val recyclerView: RecyclerView = binding.noteList
-                recyclerView.layoutManager = LinearLayoutManager(requireActivity().applicationContext)
-                recyclerView.adapter = recyclerViewAdapter
-
+                initRecyclerView(view)
             }
-
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Toast.makeText(requireActivity().applicationContext,"Cancelled",
+                    Toast.LENGTH_SHORT).show()
             }
-
         })
 
-        binding.fab.setOnClickListener { findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-        }
     }
 
+    private fun initRecyclerView(view: View){
+        val recyclerView: RecyclerView = view.findViewById(R.id.noteList)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerViewAdapter = RecyclerViewAdapter(noteList, this)
+        recyclerView.adapter = recyclerViewAdapter
+    }
+    override fun onItemClick(note: Note) {
+        goToSecond(note.guid!!)
+    }
+
+    private fun goToSecond(key: String){
+        val fragment: Fragment = SecondFragment.newInstance(key)
+        val transaction = activity?.supportFragmentManager!!.beginTransaction()
+        transaction.setCustomAnimations(R.anim.slide_in,R.anim.slide_out)
+        transaction.replace(R.id.frame_container,fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() =
+            FirstFragment().apply {
+                arguments = Bundle().apply {
+
+                }
+            }
+    }
 }

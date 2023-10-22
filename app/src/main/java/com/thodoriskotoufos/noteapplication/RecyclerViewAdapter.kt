@@ -2,18 +2,12 @@ package com.thodoriskotoufos.noteapplication
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-
-class RecyclerViewAdapter(private val dataSet: ArrayList<Note>) :
-    RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
-
-    private var onClickListener : OnClickListener? = null
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class RecyclerViewAdapter(private val dataSet: ArrayList<Note>, private val clickListener: ClickListener): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>(){
+    class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val textViewTitle: TextView
         val textViewDateTime: TextView
         val textViewContents: TextView
@@ -26,39 +20,29 @@ class RecyclerViewAdapter(private val dataSet: ArrayList<Note>) :
         }
     }
 
-    // Create new views (invoked by the layout manager)
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        // Create a new view, which defines the UI of the list item
-        val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.items_view, viewGroup, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.items_view, parent, false)
 
         return ViewHolder(view)
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.textViewTitle.text = dataSet[position].title
+        holder.textViewDateTime.text = dataSet[position].datetime
+        holder.textViewContents.text = dataSet[position].content
 
-        // Get element from your dataset at this position and replace the
-        // contents of the view with that element
-        viewHolder.textViewTitle.text = dataSet[position].toString()
-        viewHolder.textViewDateTime.text = dataSet[position].toString()
-        viewHolder.textViewContents.text = dataSet[position].toString()
-
-        viewHolder.itemView.setOnClickListener {
-            if (onClickListener != null){
-                onClickListener!!.onClick(position)
-            }
+        holder.itemView.setOnClickListener {
+            clickListener.onItemClick(dataSet[position])
         }
     }
 
-    fun setOnClickListener(onClickListener: OnClickListener){
-        this.onClickListener = onClickListener
+    override fun getItemCount(): Int {
+        return dataSet.size
     }
 
-    interface OnClickListener {
-        fun onClick(position: Int)
+    interface ClickListener{
+        fun onItemClick(note: Note)
     }
-    // Return the size of your dataset (invoked by the layout manager)
-    override fun getItemCount() = dataSet.size
 
 }
