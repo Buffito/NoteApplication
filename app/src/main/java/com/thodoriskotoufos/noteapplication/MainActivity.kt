@@ -12,11 +12,9 @@ class MainActivity : AppCompatActivity() {
 
         val fragment: Fragment = FirstFragment.newInstance()
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(R.anim.slide_in,R.anim.slide_out)
+        transaction.setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
         transaction.replace(R.id.frame_container, fragment, "first_fragment")
         transaction.commit()
-
-
     }
 
 
